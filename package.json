@@ -1,0 +1,41 @@
+{
+  "name": "aws-nodejs-ejs-snippets",
+  "displayName": "AWS Node.js & EJS Snippets",
+  "description": "Bộ Snippet boilerplate cực kỳ hữu ích cho các dự án Node.js, AWS (DynamoDB, S3) và EJS. Gõ tắt nhanh Express app, AWS config, CRUD model, router, controller và EJS templates.",
+  "version": "1.0.0",
+  "publisher": "tizga",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Snippets"
+  ],
+  "keywords": [
+    "aws",
+    "nodejs",
+    "express",
+    "ejs",
+    "dynamodb",
+    "s3",
+    "snippets",
+    "boilerplate",
+    "crud"
+  ],
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MaiDuyy/aws-nodejs-ejs-snippets"
+  },
+  "contributes": {
+    "snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets/javascript.json"
+      },
+      {
+        "language": "html",
+        "path": "./snippets/ejs.json"
+      }
+    ]
+  }
+}

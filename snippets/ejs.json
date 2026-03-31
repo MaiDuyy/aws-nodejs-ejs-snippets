@@ -1,0 +1,77 @@
+{
+  "EJS Form Template": {
+    "prefix": "ejs-form",
+    "body": [
+      "<h1><%= ${1:title} %></h1>",
+      "<% if (errors?.length) { %>",
+      " <p style=\"color: red;\"> <%= errors.join(\", \") %></p>",
+      "<% } %>",
+      "<form action=\"<%= ${2:action} %>\" method=\"post\" enctype=\"multipart/form-data\">",
+      "    Name: <input type=\"text\" name=\"name\" value=\"<%= data?.name %>\"> <br/>",
+      "    Price: <input type=\"number\" name=\"price\" value=\"<%= data?.price %>\"> <br/>",
+      "    Status: ",
+      "    <select name=\"status\">",
+      "        <option value=\"Active\" <%= data?.status === 'Active' ? 'selected' : '' %>>Active</option>",
+      "        <option value=\"Suspended\" <%= data?.status === 'Suspended' ? 'selected' : '' %>>Suspended</option>",
+      "    </select><br/>",
+      "    <% if (data.imageUrl) { %>",
+      "        <img src=\"<%= data.imageUrl %>\" alt=\"\" width=\"80\">",
+      "    <% } %>",
+      "    <input type=\"file\" name=\"image\" accept=\"image/*\">",
+      "    <button type=\"submit\">Submit</button>",
+      "</form>"
+    ],
+    "description": "Tạo nhanh Form EJS hỗ trợ upload file và hiển thị lỗi"
+  },
+  "EJS CSS Cards Grid": {
+    "prefix": "ejs-cards",
+    "body": [
+      "<style>",
+      "    .cards {",
+      "        display: flex;",
+      "        flex-wrap: wrap; gap: 15px;",
+      "    }",
+      "    .card { ",
+      "        border: 1px solid #ccc;",
+      "        padding: 15px; width: 250px; border-radius: 4px;",
+      "    }",
+      "    .card img { ",
+      "        width: 100%;",
+      "        height: 150px; object-fit: cover; border-radius: 4px;",
+      "    }",
+      "    .card a {",
+      "        margin-right: 10px;",
+      "        text-decoration: none; color: blue;",
+      "    }",
+      "</style>",
+      "",
+      "<div class=\"cards\">",
+      "    <% ${1:items}.forEach(s => { %>",
+      "        <div class=\"card\">",
+      "            <img src=\"<%= s.imageUrl %>\" alt=\"\">",
+      "            Tên: <%= s.name %> <br/>",
+      "            <a href=\"/detail/<%= s.id %>\">View</a>",
+      "            <a href=\"/edit/<%= s.id %>\">Edit</a>",
+      "            <a href=\"/delete/<%= s.id %>\" onclick=\"return confirm('Xóa?')\">Del</a>",
+      "        </div>",
+      "    <% }) %>",
+      "</div>"
+    ],
+    "description": "CSS Card Layout cơ bản cho danh sách EJS"
+  },
+  "EJS Search & Delete All Form": {
+    "prefix": "ejs-search",
+    "body": [
+      "<form action=\"/\" method=\"get\">",
+      "    <input type=\"text\" name=\"q\" value=\"<%= keyword || '' %>\" placeholder=\"Search...\">",
+      "    <button type=\"submit\">Search</button>",
+      "</form>",
+      "",
+      "<a href=\"/add\">Add New</a>",
+      "<form action=\"/delete-all\" method=\"post\" onsubmit=\"return confirm('Xóa tất cả?')\">",
+      "    <button type=\"submit\">Delete All</button>",
+      "</form>"
+    ],
+    "description": "Thanh tìm kiếm và nút xóa tất cả cho trang Index"
+  }
+}
