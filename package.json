@@ -2,8 +2,8 @@
   "name": "aws-nodejs-ejs-snippets",
   "displayName": "AWS Node.js & EJS Snippets",
   "description": "Bộ Snippet boilerplate cực kỳ hữu ích cho các dự án Node.js, AWS (DynamoDB, S3) và EJS. Gõ tắt nhanh Express app, AWS config, CRUD model, router, controller và EJS templates.",
-  "version": "1.0.0",
-  "publisher": "tizga",
+  "version": "1.0.1",
+  "publisher": "Awsnodejsejssnippets",
   "engines": {
     "vscode": "^1.75.0"
   },

@@ -1,4 +1,18 @@
 {
+  "AWS Environment Variables": {
+    "prefix": "aws-env",
+    "body": [
+      "REGION=",
+      "KEY=",
+      "SEC=",
+      "",
+      "DB=",
+      "BK=",
+      "PR=",
+      "CDN="
+    ],
+    "description": "Các biến môi trường cho AWS S3 và DynamoDB"
+  },
   "Express App Boilerplate": {
     "prefix": "ex-app",
     "body": [
@@ -34,25 +48,6 @@
     ],
     "description": "Cấu hình kết nối AWS SDK cho DynamoDB và S3"
   },
-  "DynamoDB Model CRUD": {
-    "prefix": "aws-model",
-    "body": [
-      "import { dynamo } from \"../config/aws.js\";",
-      "",
-      "const T = process.env.${1:DB};",
-      "",
-      "export const getAll = () => dynamo.scan({ TableName: T }).promise().then(d => d.Items);",
-      "export const getById = (${2:id}) => dynamo.get({ TableName: T, Key: { ${2:id} } }).promise().then(d => d.Item);",
-      "export const create = (Item) => dynamo.put({ TableName: T, Item }).promise();",
-      "export const update = create;",
-      "export const deleteItem = (${2:id}) => dynamo.delete({ TableName: T, Key: { ${2:id} } }).promise();",
-      "export const deleteAll = async () => {",
-      "  const items = await getAll();",
-      "  await Promise.all(items.map((item) => deleteItem(item.${2:id})));",
-      "};"
-    ],
-    "description": "Tạo nhanh các hàm CRUD cho DynamoDB model"
-  },
   "Express Router with Multer": {
     "prefix": "ex-router",
     "body": [
@@ -68,7 +63,7 @@
       "router.post(\"/add\", upload.single(\"image\"), ctrl.add);",
       "router.get(\"/edit/:id\", ctrl.showEdit);",
       "router.post(\"/edit/:id\", upload.single(\"image\"), ctrl.edit);",
-      "router.get(\"/delete/:id\", ctrl.deteleSoft);",
+      "router.get(\"/delete/:id\", ctrl.deleteSoft);",
       "router.get(\"/detail/:id\", ctrl.detail);",
       "router.post(\"/delete-all\", ctrl.deleteAll);",
       "",
@@ -76,14 +71,73 @@
     ],
     "description": "Khởi tạo Express router tích hợp Multer upload file"
   },
-  "Express Controller with S3 & CRUD": {
-    "prefix": "ex-ctrl",
+  "DynamoDB Model Init": {
+    "prefix": "aws-model-init",
+    "body": [
+      "import { dynamo } from \"../config/aws.js\";",
+      "",
+      "const T = process.env.${1:DB};"
+    ],
+    "description": "Khởi tạo T (TableName) cho DynamoDB Model"
+  },
+  "DynamoDB Model GetAll": {
+    "prefix": "aws-model-getAll",
+    "body": [
+      "export const getAll = () => dynamo.scan({ TableName: T }).promise().then(d => d.Items);"
+    ],
+    "description": "Hàm lấy tất cả items từ DynamoDB"
+  },
+  "DynamoDB Model GetById": {
+    "prefix": "aws-model-getById",
+    "body": [
+      "export const getById = (${1:id}) => dynamo.get({ TableName: T, Key: { ${1:id} } }).promise().then(d => d.Item);"
+    ],
+    "description": "Hàm lấy 1 item theo ID từ DynamoDB"
+  },
+  "DynamoDB Model Create": {
+    "prefix": "aws-model-create",
+    "body": [
+      "export const create = (Item) => dynamo.put({ TableName: T, Item }).promise();"
+    ],
+    "description": "Hàm tạo mới 1 item trong DynamoDB"
+  },
+  "DynamoDB Model Update": {
+    "prefix": "aws-model-update",
+    "body": [
+      "export const update = create;"
+    ],
+    "description": "Hàm cập nhật item trong DynamoDB (tương đương create)"
+  },
+  "DynamoDB Model DeleteItem": {
+    "prefix": "aws-model-deleteItem",
+    "body": [
+      "export const deleteItem = (${1:id}) => dynamo.delete({ TableName: T, Key: { ${1:id} } }).promise();"
+    ],
+    "description": "Hàm xóa 1 item theo ID trong DynamoDB"
+  },
+  "DynamoDB Model DeleteAll": {
+    "prefix": "aws-model-deleteAll",
+    "body": [
+      "export const deleteAll = async () => {",
+      "  const items = await getAll();",
+      "  await Promise.all(items.map((item) => deleteItem(item.${1:id})));",
+      "};"
+    ],
+    "description": "Hàm xóa toàn bộ items trong bảng DynamoDB"
+  },
+  "Express Controller Init": {
+    "prefix": "ex-ctrl-init",
     "body": [
       "import fs from \"fs\";",
       "import * as ${1:Soft} from \"../models/${2:soft}.model.js\";",
       "import { s3 } from \"../config/aws.js\";",
-      "import { v4 as uuid } from \"uuid\";",
-      "",
+      "import { v4 as uuid } from \"uuid\";"
+    ],
+    "description": "Import các thư viện cơ bản cho Controller"
+  },
+  "Express Controller Upload File": {
+    "prefix": "ex-ctrl-uploadfile",
+    "body": [
       "export const uploadFile = async (file) => {",
       "  const fileContent = fs.readFileSync(file.path);",
       "",
@@ -96,8 +150,13 @@
       "  await s3.upload(params).promise();",
       "  fs.unlinkSync(file.path);",
       "  return \\`https://\\${process.env.CDN}/\\${params.Key}\\`;",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Hàm upload file lên S3"
+  },
+  "Express Controller Delete File": {
+    "prefix": "ex-ctrl-deletefile",
+    "body": [
       "export const deleteFile = async (fileUrl) => {",
       "  if (!fileUrl) return;",
       "  const key = fileUrl.split(\"/\").pop();",
@@ -107,27 +166,42 @@
       "      Key: process.env.PR + key,",
       "    })",
       "    .promise();",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Hàm xóa file trên S3"
+  },
+  "Express Controller Index": {
+    "prefix": "ex-ctrl-index",
+    "body": [
       "export const index = async (req, res) => {",
-      "  const items = await ${1:Soft}.getAll();",
+      "  let ${2:softs} = await ${1:Soft}.getAll();",
       "  const q = req.query.q;",
       "",
-      "  if (q) items = items.filter((s) => s.toLowerCase().includes(q.toLowerCase()));",
+      "  if (q) ${2:softs} = ${2:softs}.filter((s) => s.softwareName?.toLowerCase().includes(q.toLowerCase()));",
       "",
       "  res.render(\"index\", {",
-      "    softs: items,",
+      "    ${2:softs},",
       "    keyword: q,",
       "  });",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Controller xử lý trang danh sách kèm tìm kiếm"
+  },
+  "Express Controller Detail": {
+    "prefix": "ex-ctrl-detail",
+    "body": [
       "export const detail = async (req, res) => {",
       "  const s = await ${1:Soft}.getById(req.params.id);",
       "  res.render(\"detail\", {",
       "    s,",
       "  });",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Controller xử lý xem chi tiết"
+  },
+  "Express Controller Delete Soft": {
+    "prefix": "ex-ctrl-deleteSoft",
+    "body": [
       "export const deteleSoft = async (req, res) => {",
       "  const s = await ${1:Soft}.getById(req.params.id);",
       "  ",
@@ -136,8 +210,13 @@
       "    await ${1:Soft}.deleteItem(req.params.id);",
       "  }",
       "  res.redirect(\"/\");",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Controller xử lý xóa 1 item và file trên S3"
+  },
+  "Express Controller Show Add": {
+    "prefix": "ex-ctrl-showAdd",
+    "body": [
       "export const showAdd = async (req, res) => {",
       "  res.render(\"form\", {",
       "    title: \"Add\",",
@@ -145,27 +224,37 @@
       "    data: {},",
       "    errors: [],",
       "  });",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Controller hiển thị form thêm mới"
+  },
+  "Express Controller Validate": {
+    "prefix": "ex-ctrl-validate",
+    "body": [
       "function validate(data) {",
       "  const errors = [];",
       "  if(!data.unitPrice || Number(data.unitPrice) <= 0) { ",
-      "      errors.push(\"price phair > 0\");",
+      "      errors.push(\"price phải > 0\");",
       "  }",
       "  if(!data.seats || Number(data.seats) <= 0) { ",
-      "      errors.push(\"seats phair > 0\");",
+      "      errors.push(\"seats phải > 0\");",
       "  }",
       "  if(new Date(data.expiryDate) < new Date()){",
-      "        errors.push(\"Ngay khon hop le\");",
+      "        errors.push(\"Ngày không hợp lệ\");",
       "  }",
       "  if(![\"Standard\", \"Professional\", \"Enterprise\"].includes(data.licenseTier)){",
-      "      errors.push(\"Cac gia tri phai la Standard / Professional / Enterprise\");",
+      "      errors.push(\"Các giá trị phải là Standard / Professional / Enterprise\");",
       "  }",
       "  return errors;",
-      "}",
-      "",
-      "const calculator = (unitPrice, seats , licenseTier) => {",
-      "    const total = unitPrice * seats ; ",
+      "}"
+    ],
+    "description": "Hàm validate dữ liệu form"
+  },
+  "Express Controller Calculator": {
+    "prefix": "ex-ctrl-calculator",
+    "body": [
+      "const calculator = (unitPrice, seats, licenseTier) => {",
+      "    const total = unitPrice * seats; ",
       "    let finalAmount = total; ",
       "    if(licenseTier === \"Professional\" && seats > 15 ) { ",
       "        finalAmount = total * 0.8;",
@@ -173,12 +262,43 @@
       "        finalAmount = total * 0.12;",
       "    }",
       "    return { ",
-      "        total , ",
+      "        total, ",
       "        finalAmount, ",
       "        discount : finalAmount < total ? \"Được ưu đãi\" : \"Không ưu đãi\"",
       "    }",
-      "}",
+      "}"
+    ],
+    "description": "Hàm tính toán giá và ưu đãi"
+  },
+  "Express Controller Build Object": {
+    "prefix": "ex-ctrl-buildObj",
+    "body": [
+      "const buildObject = (body, imageUrl, id = uuid()) => {",
+      "  const { softwareName, ownerDepartment, licenseTier, status, expiryDate } = body;",
+      "  const seats      = Number(body.seats);",
+      "  const unitPrice  = Number(body.unitPrice);",
+      "  const pricing    = calculator(unitPrice, seats, licenseTier);",
       "",
+      "  return {",
+      "    softwareId: id,",
+      "    softwareName,",
+      "    ownerDepartment,",
+      "    licenseTier,",
+      "    seats,",
+      "    unitPrice,",
+      "    expiryDate,",
+      "    status,",
+      "    imageUrl,",
+      "    createdAt: new Date().toISOString(),",
+      "    ...pricing,",
+      "  };",
+      "};"
+    ],
+    "description": "Hàm build object để map dữ liệu body trước khi đưa vào DB"
+  },
+  "Express Controller Add": {
+    "prefix": "ex-ctrl-add",
+    "body": [
       "export const add = async (req, res) => {",
       "  const errors = validate(req.body);",
       "  if (errors.length > 0) {",
@@ -191,31 +311,16 @@
       "  }",
       "",
       "  const imageUrl = await uploadFile(req.file);",
-      "  const seats = Number(req.body.seats);",
-      "  const unitPrice = Number(req.body.unitPrice);",
-      "  const licenseTier = req.body.licenseTier;",
-      "  const pricing = calculator(unitPrice, seats, licenseTier);",
       "",
-      "  const item = {",
-      "    softwareId: uuid(),",
-      "    softwareName: req.body.softwareName,",
-      "    ownerDepartment: req.body.ownerDepartment,",
-      "    licenseTier: licenseTier,",
-      "    seats: seats,",
-      "    unitPrice: unitPrice,",
-      "    expiryDate: req.body.expiryDate,",
-      "    status: req.body.status,",
-      "    imageUrl: imageUrl,",
-      "    createdAt: new Date().toISOString(),",
-      "    total : pricing.total, ",
-      "    finalAmount : pricing.finalAmount, ",
-      "    discount : pricing.discount",
-      "  };",
-      "",
-      "  await ${1:Soft}.create(item);",
+      "  await ${1:Soft}.create(buildObject(req.body, imageUrl));",
       "  res.redirect(\"/\");",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Controller xử lý logic thêm mới dữ liệu"
+  },
+  "Express Controller Show Edit": {
+    "prefix": "ex-ctrl-showEdit",
+    "body": [
       "export const showEdit = async (req, res) => {",
       "  const s = await ${1:Soft}.getById(req.params.id);",
       "  res.render(\"form\", {",
@@ -224,43 +329,40 @@
       "    data: s,",
       "    errors: [],",
       "  });",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Controller hiển thị form chỉnh sửa"
+  },
+  "Express Controller Edit": {
+    "prefix": "ex-ctrl-edit",
+    "body": [
       "export const edit = async (req, res) => {",
       "  const s = await ${1:Soft}.getById(req.params.id);",
-      "",
+      "  let { imageUrl } = s; ",
+      "  ",
       "  if (req.file) {",
       "    if (s.imageUrl) {",
       "      await deleteFile(s.imageUrl);",
       "    }",
-      "    await uploadFile(req.file);",
+      "    imageUrl = await uploadFile(req.file); ",
       "  }",
-      "",
-      "  s.softwareName = req.body.softwareName;",
-      "  s.ownerDepartment = req.body.ownerDepartment;",
-      "  s.licenseTier = req.body.licenseTier;",
-      "  s.seats = Number(req.body.seats);",
-      "  s.unitPrice = Number(req.body.unitPrice);",
-      "  s.expiryDate = req.body.expiryDate;",
-      "  s.status = req.body.status;",
-      "  s.createdAt = new Date().toISOString();",
-      "",
-      "  const pricing = calculator(s.unitPrice, s.seats, s.licenseTier);",
-      "  s.total = pricing.total;",
-      "  s.finalAmount = pricing.finalAmount;",
-      "  s.discount = pricing.discount;",
-      "     ",
-      "  await ${1:Soft}.update(s);",
+      "  ",
+      "  await ${1:Soft}.update(buildObject(req.body, imageUrl, s.softwareId));",
       "  res.redirect(\"/\");",
-      "};",
-      "",
+      "};"
+    ],
+    "description": "Controller xử lý logic cập nhật dữ liệu"
+  },
+  "Express Controller Delete All": {
+    "prefix": "ex-ctrl-deleteAll",
+    "body": [
       "export const deleteAll = async (req, res) => {",
-      "  const items = await ${1:Soft}.getAll();",
-      "  await Promise.all(items.map((s) => deleteFile(s.imageUrl)));",
+      "  const ${2:softs} = await ${1:Soft}.getAll();",
+      "  await Promise.all(${2:softs}.map((s) => deleteFile(s.imageUrl)));",
       "  await ${1:Soft}.deleteAll();",
       "  res.redirect(\"/\");",
       "};"
     ],
-    "description": "Controller mẫu xử lý upload S3, validation, tính toán giá và CRUD đầy đủ"
+    "description": "Controller xử lý xóa toàn bộ dữ liệu và file S3"
   }
 }
